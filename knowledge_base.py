@@ -42,8 +42,7 @@ class WorldviewKnowledgeBase:
                 for section in sections:
                     # 提取命途名称
                     title_text = section.get_text(strip=True)
-                    destiny_match = re.search(r'^(\d+)\.\s*([^
-]+)智能体$', title_text)
+                    destiny_match = re.search(r'^(\d+)\.\s*([^ ]+)智能体$', title_text)
                     if not destiny_match:
                         continue
                     

@@ -1,9 +1,9 @@
 import json
 import numpy as np
 from typing import Dict, Any, List, Optional
-from langchain.llms import OpenAI
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
+from langchain_community.llms import OpenAI
+from langchain.chains.llm import LLMChain
+from langchain_community.prompts import PromptTemplate
 import re
 
 class BaseAgent:
