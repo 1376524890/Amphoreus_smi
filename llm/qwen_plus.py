@@ -3,8 +3,7 @@ from openai import OpenAI   # 新增
 
 def chat(prompt: str, system: str) -> str:
     client = OpenAI(
-        # api_key="sk-xxxxxxxxxxxxxxxx",
-        api_key="sk-83120a39ce12462bbf66670e2acfc9bd",
+        api_key="sk-xxxxxxxxxxxxxxxx",
         base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",  # 千问示例
     )
 
