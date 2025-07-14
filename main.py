@@ -16,6 +16,11 @@ def load_kb(path="world/world.json"):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
+
+def save_kb(data, path="world/world.json"):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
 def save_log(log, rnd):
     os.makedirs("log", exist_ok=True)
     with open(f"log/run_{rnd:03d}.json", "w", encoding="utf-8") as f:
@@ -64,7 +69,8 @@ def main():
         high_impact = [s for s in snapshot if abs(s["impact"]) > 0.5]
         if high_impact:
             kb.setdefault("supplements", []).extend(high_impact)
-            save_summary(kb["supplements"])
+        save_summary(kb["supplements"])
+        save_kb(kb)  # 持久化更新知识库
 
         # 9. 收敛检测（基于最近 N 步）
         if is_converged(all_logs):
