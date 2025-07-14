@@ -90,7 +90,7 @@
 
 ---
 
-## 9 附录：如何复现
+## 8 附录：如何复现
 ```bash
 git clone <repo>
 pip install -r requirements.txt
