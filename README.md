@@ -48,3 +48,21 @@
 
 - 问题：多个Agent间的交互规则不明确
 - agent发出动作并由系统agent结合虚拟世界当前情况进行分析总结，并根据影响结果修改其他agent的状态
+
+wengfalos/
+ ├─ main.py                 # 启动入口
+ ├─ config.py               # 全局配置（API Key、超参数）
+ ├─ world/
+ │   ├─ world.json          # 原始世界观（文件2）
+ │   └─ world_kb.json       # 运行时知识库（自动生成）
+ ├─ agents/
+ │   ├─ agent_templates.py  # 11 套系统提示词
+ │   └─ agent.py            # Agent 类
+ ├─ llm/
+ │   └─ qwen_plus.py        # 阿里云百炼封装
+ ├─ log/
+ │   ├─ run_*.json          # 每轮完整日志
+ │   └─ summary.json        # 管理员筛选后的补充知识
+ └─ utils/
+     ├─ similarity.py       # 余弦相似度收敛检测
+     └─ reward.py           # 奖励计算
