@@ -5,7 +5,11 @@
 - 一轮结束后生成总结
 """
 import json, datetime, uuid, random
-from llm.qwen_plus import chat
+from agents.memory import LongMemory
+from llm.llm import llm
+from langchain_core.messages import SystemMessage, HumanMessage
+from langchain.agents import create_react_agent, AgentExecutor
+from tools.toolkit import tools
 
 class Agent:
     def __init__(self, name: str, sys: str, kb: dict):
@@ -13,6 +17,13 @@ class Agent:
         self.sys  = sys
         self.kb   = kb               # 会被外部更新：kb["last_round_summary"]
         self.memory = []             # 本轮 3 步的记忆
+        self.long_memory = LongMemory(name)  # 长期记忆
+        self.agent_executor = AgentExecutor(
+            agent=create_react_agent(llm, tools),
+            tools=tools,
+            verbose=True,
+            memory=self.long_memory.mem
+        )
 
     # -------------------------------------------------
     # 1. 单步行动：能看到【实时局面 snapshot】
@@ -30,7 +41,12 @@ class Agent:
 你是{self.name}，请用一句话描述你在本回合步的行动，并给出预期影响(-1~1)。
 返回 JSON：{{"action":"...","impact":float}}
 """
-        raw = chat(prompt, self.sys)
+        input_data = {
+            "input": prompt,
+            "history": self.long_memory.mem.load_memory_variables({})["history"]
+        }
+        response = self.agent_executor.invoke(input_data)
+        raw = response["output"]
         try:
             out = json.loads(raw)
         except:
