@@ -1,6 +1,6 @@
 # tools/toolkit.py
 from langchain.agents import tool
-from utils.reward import calculate_reward
+from utils.reward import calc_reward
 
 @tool
 def write_log(msg: str) -> str:

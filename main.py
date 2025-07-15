@@ -10,7 +10,8 @@ from agents.agent_templates import TEMPLATES
 from agents.agent import Agent
 from utils.similarity import is_converged
 from utils.reward import calc_reward
-from langchain_community.autonomous_agents import GroupChat
+# from langchain_community.autonomous_agents import GroupChat
+from langchain_experimental.autonomous_agents import GroupChat
 
 # ---------- 工具 ----------
 def load_kb(path="world/world.json"):
