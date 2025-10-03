@@ -1,5 +1,7 @@
 from crewai import Agent
-from ..tools import GenesisTool, BlackTideTool, MemoryInheritanceTool
+from tools.genesis_tool import GenesisTool
+from tools.black_tide_tool import BlackTideTool
+from tools.memory_inheritance_tool import MemoryInheritanceTool
 from config import get_llm
 
 def create_scepter_agent():

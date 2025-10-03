@@ -1,4 +1,5 @@
-from crewai_tools import BaseTool
+from crewai.tools import BaseTool
+import random
 
 class BlackTideTool(BaseTool):
     name: str = "黑潮入侵者"

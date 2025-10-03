@@ -1,5 +1,5 @@
 from crewai import Task
-from ..agents import create_chrysos_agents
+from agents.chrysos_agents import create_chrysos_agents
 
 HEIR_FACTORS = ['争斗', '理性', '世界承载', '和谐', '勇气', '洞察', '耐力', '命运', '混沌', '秩序', '永恒', '重生']
 

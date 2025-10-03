@@ -1,5 +1,5 @@
 from crewai import Agent
-from ..tools import BlackTideTool
+from tools.black_tide_tool import BlackTideTool
 from config import get_llm
 
 def create_destruction_agent():

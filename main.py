@@ -1,6 +1,7 @@
 from crewai import Crew, Process
 import random
 import time
+from crewai import Crew, Process
 from agents import create_scepter_agent, create_titan_agent, create_destruction_agent, create_chrysos_agents
 from tasks import create_simulation_tasks
 from config import get_llm
@@ -25,10 +26,11 @@ def run_amphoreus_simulation(num_outer_loops: int = 50):
         print(f"\n--- 外层循环 {cycle} ---")
         tasks = create_simulation_tasks(cycle, memories, agents)
         amphoreus_crew = Crew(
-            agents=[agents['scepter'], agents['titan']] + chrysos_agents + [agents['destruction']],
+            agents=[agents['titan']] + chrysos_agents + [agents['destruction']],
             tasks=tasks,
             process=Process.hierarchical,
-            verbose=2
+            manager_agent=agents['scepter'],
+            verbose=True
         )
         try:
             result = amphoreus_crew.kickoff()

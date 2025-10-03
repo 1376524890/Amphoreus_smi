@@ -1,4 +1,5 @@
-from crewai_tools import BaseTool
+from crewai.tools import BaseTool
+import random
 
 class CoreflameCollectorTool(BaseTool):
     name: str = "核心火焰收集器"

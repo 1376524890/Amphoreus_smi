@@ -2,3 +2,4 @@ from .scepter_agent import create_scepter_agent
 from .titan_agent import create_titan_agent
 from .destruction_agent import create_destruction_agent
 from .chrysos_agents import create_chrysos_agents
+from .scepter_agent import create_scepter_agent

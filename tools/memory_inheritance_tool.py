@@ -1,5 +1,6 @@
-from crewai_tools import BaseTool
+from crewai.tools import BaseTool
 from typing import Dict
+import random
 
 class MemoryInheritanceTool(BaseTool):
     name: str = "记忆继承者"

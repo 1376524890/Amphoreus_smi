@@ -1,5 +1,6 @@
 from crewai import Agent
-from ..tools import CoreflameCollectorTool, MemoryInheritanceTool
+from tools.coreflame_collector_tool import CoreflameCollectorTool
+from tools.memory_inheritance_tool import MemoryInheritanceTool
 from config import get_llm
 
 # 12 个 Chrysos Heirs 的因素（游戏灵感）

@@ -1,5 +1,5 @@
 from crewai import Agent
-from ..tools import GenesisTool
+from tools.genesis_tool import GenesisTool
 from config import get_llm
 
 def create_titan_agent():
