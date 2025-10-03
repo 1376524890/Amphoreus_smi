@@ -1,6 +1,7 @@
 from crewai.tools import BaseTool
 from typing import List, Dict
 import random
+from crewai.tools import BaseTool
 
 class GenesisTool(BaseTool):
     name: str = "创世纪模拟器"

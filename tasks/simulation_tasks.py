@@ -1,9 +1,9 @@
 from crewai import Task
-from agents.chrysos_agents import create_chrysos_agents
+from crewai import Task
 
 HEIR_FACTORS = ['争斗', '理性', '世界承载', '和谐', '勇气', '洞察', '耐力', '命运', '混沌', '秩序', '永恒', '重生']
 
-def create_simulation_tasks(cycle_num: int, previous_memories: dict = None, agents: dict = None):
+def create_simulation_tasks(cycle_num: int, previous_memories: dict = None, agents: dict = None, chrysos_agents: list = None):
     tasks = [
         Task(
             description=f'在循环 {cycle_num} 中：使用种子 {cycle_num % 100} 启动创世纪。演化基本实体。',
@@ -17,7 +17,6 @@ def create_simulation_tasks(cycle_num: int, previous_memories: dict = None, agen
         )
     ]
     # 12 个继承者的并行任务
-    chrysos_agents = create_chrysos_agents()
     for i, agent in enumerate(chrysos_agents, start=1):
         factor = HEIR_FACTORS[i-1]
         tasks.append(

@@ -7,6 +7,7 @@ from tasks import create_simulation_tasks
 from config import get_llm
 
 def run_amphoreus_simulation(num_outer_loops: int = 50):
+    print("程序开始执行...")
     overall_stats = {'successful_stalls': 0, 'total_flames': 0, 'avg_destruction': 0}
     memories = {f'heir_{i}': 0 for i in range(1, 13)}
 
@@ -24,7 +25,7 @@ def run_amphoreus_simulation(num_outer_loops: int = 50):
 
     for cycle in range(1, num_outer_loops + 1):
         print(f"\n--- 外层循环 {cycle} ---")
-        tasks = create_simulation_tasks(cycle, memories, agents)
+        tasks = create_simulation_tasks(cycle, memories, agents, chrysos_agents)
         amphoreus_crew = Crew(
             agents=[agents['titan']] + chrysos_agents + [agents['destruction']],
             tasks=tasks,
@@ -35,7 +36,11 @@ def run_amphoreus_simulation(num_outer_loops: int = 50):
         try:
             result = amphoreus_crew.kickoff()
         except Exception as e:
+            import traceback
             print(f"循环 {cycle} 执行失败: {e}")
+            print(f"异常类型: {type(e).__name__}")
+            print("异常堆栈:")
+            traceback.print_exc()
             continue
 
         # 简化解析（实际中从 result 解析）
@@ -67,4 +72,4 @@ def run_amphoreus_simulation(num_outer_loops: int = 50):
     print("Irontomb 方程: 收敛到毁灭。" if overall_stats['successful_stalls'] < num_outer_loops / 2 else "Stall！需要外部变量（开拓者）打破循环。")
 
 if __name__ == "__main__":
-    run_amphoreus_simulation(50)
+    run_amphoreus_simulation(3)
