@@ -1,19 +1,21 @@
 import os
-from typing import List
+from dotenv import load_dotenv
+from litellm import completion  # LiteLLM 用于 CrewAI 集成
 
-# ========== 阿里云百炼 ==========
-ALI_API_KEY = os.getenv("ALI_API_KEY") or "sk-xxxxxxxxxxxxxxxx"
-ALI_MODEL   = "qwen-plus"
-ALI_BASE    = "https://bailian.aliyuncs.com/v1"   # 官方 OpenAI 兼容地址
+load_dotenv()
 
-# ========== 迭代控制 ==========
-MAX_ROUND      = 30           # 最大迭代轮数
-SIM_THRESHOLD  = 0.95         # 余弦相似度收敛阈值
-HISTORY_WINDOW = 3            # 检测最近 n 轮相似
-REWARD_WEIGHT  = {"philosophy":0.6, "goal":0.4}
+# 配置 DashScope Qwen-Max LLM（使用 OpenAI 兼容模式）
+os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY")
+LLM_MODEL = "qwen3-max"  # 或 "qwen2.5-max" 如果是最新；DashScope 支持 Qwen 系列
+LLM_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 
-# ========== 世界阶段 ==========
-STAGES: List[str] = [
-    "启蒙世","造物世","黄金世",
-    "纷争世","幻灭世","再创世"
-]
+# CrewAI LLM 配置函数（返回 LiteLLM 实例，确保中文交互）
+def get_llm():
+    from litellm import LiteLLM
+    return LiteLLM(
+        model_name=LLM_MODEL,
+        api_base=LLM_BASE_URL,
+        temperature=0.7,  # 适中温度，确保稳定输出
+        max_tokens=2048,
+        additional_kwargs={"language": "zh"}  # 强制中文输出（如果支持）
+    )

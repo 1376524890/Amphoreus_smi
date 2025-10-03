@@ -1,82 +1,68 @@
-"""
-增强交互版主循环
-- 每轮 11×3 = 33 步
-- 实时 snapshot 传播
-- 每轮结束后生成总结并写回 kb
-"""
-import json, os, datetime, random
-from config import MAX_ROUND, STAGES
-from agents.agent_templates import TEMPLATES
-from agents.agent import Agent
-from utils.similarity import is_converged
-from utils.reward import calc_reward
+from crewai import Crew, Process
+import random
+import time
+from agents import create_scepter_agent, create_titan_agent, create_destruction_agent, create_chrysos_agents
+from tasks import create_simulation_tasks
+from config import get_llm
 
-# ---------- 工具 ----------
-def load_kb(path="world/world.json"):
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+def run_amphoreus_simulation(num_outer_loops: int = 50):
+    overall_stats = {'successful_stalls': 0, 'total_flames': 0, 'avg_destruction': 0}
+    memories = {f'heir_{i}': 0 for i in range(1, 13)}
 
-def save_log(log, rnd):
-    os.makedirs("log", exist_ok=True)
-    with open(f"log/run_{rnd:03d}.json", "w", encoding="utf-8") as f:
-        json.dump(log, f, ensure_ascii=False, indent=2)
+    # 组装代理
+    try:
+        agents = {
+            'scepter': create_scepter_agent(),
+            'titan': create_titan_agent(),
+            'destruction': create_destruction_agent()
+        }
+        chrysos_agents = create_chrysos_agents()  # 动态添加 Chrysos 代理
+    except Exception as e:
+        print(f"代理创建失败: {e}")
+        return
 
-def save_summary(summary):
-    with open("log/summary.json", "w", encoding="utf-8") as f:
-        json.dump(summary, f, ensure_ascii=False, indent=2)
+    for cycle in range(1, num_outer_loops + 1):
+        print(f"\n--- 外层循环 {cycle} ---")
+        tasks = create_simulation_tasks(cycle, memories, agents)
+        amphoreus_crew = Crew(
+            agents=[agents['scepter'], agents['titan']] + chrysos_agents + [agents['destruction']],
+            tasks=tasks,
+            process=Process.hierarchical,
+            verbose=2
+        )
+        try:
+            result = amphoreus_crew.kickoff()
+        except Exception as e:
+            print(f"循环 {cycle} 执行失败: {e}")
+            continue
 
-# ---------- 主循环 ----------
-def main():
-    # 1. 加载世界观
-    kb = load_kb()
-    kb.update(load_kb("world/world_supplement.json"))
-    kb["last_round_summary"] = "世界刚诞生，混沌未分。"   # 初始背景
+        # 简化解析（实际中从 result 解析）
+        score = random.randint(50, 200 * (cycle // 10 + 1))
+        flames_collected = [random.choice([True, False]) for _ in range(12)]
+        flames_count = sum(flames_collected)
+        destruction = random.uniform(0.2, 0.8 - (cycle / num_outer_loops * 0.3))
 
-    # 2. 创建 11 个 Agent
-    agents = [Agent(name=k, sys=TEMPLATES[k], kb=kb) for k in TEMPLATES]
+        if flames_count >= 12:
+            overall_stats['successful_stalls'] += 1
+            print("新纪元激活！内层永恒轮回 stall Irontomb。")
+            for inner in range(3):
+                time.sleep(0.1)
+                print(f"  内层循环 {inner+1}: 继承者间继承记忆，熵减少。")
+        else:
+            print("黑潮淹没。循环重置。")
 
-    stage_idx = 0
-    all_logs  = []          # 用于收敛检测的全局列表（跨轮）
+        overall_stats['total_flames'] += flames_count
+        overall_stats['avg_destruction'] += destruction
 
-    for rnd in range(1, MAX_ROUND + 1):
-        print(f"\n===== Round {rnd} | Stage {STAGES[stage_idx]} =====")
+        for i in range(1, 13):
+            memories[f'heir_{i}'] += 10 if flames_collected[i-1] else 0
 
-        # 3. 每回合行动顺序（可随机）
-        agents_order = random.sample(agents, len(agents))
+        print(f"循环 {cycle} 结束: 分数={score}, 火焰={flames_count}/12, 毁灭={destruction:.2f}")
 
-        # 4. 执行 3 回合（修复 AttributeError）
-        snapshot = agents_order[0].play_round(agents_order, STAGES[stage_idx], rnd)
-
-        # 5. 计算单步奖励（可选）
-        for step_log in snapshot:
-            step_log["reward"] = calc_reward(step_log["agent"], step_log)
-
-        # 6. 保存本轮 33 步完整日志
-        save_log(snapshot, rnd)
-        all_logs.extend(snapshot)
-
-        # 7. 生成并广播本轮总结
-        summary = Agent.round_summary(snapshot)
-        for ag in agents:
-            ag.kb["last_round_summary"] = summary
-
-        # 8. 管理员筛选高影响事件入库
-        high_impact = [s for s in snapshot if abs(s["impact"]) > 0.5]
-        if high_impact:
-            kb.setdefault("supplements", []).extend(high_impact)
-            save_summary(kb["supplements"])
-
-        # 9. 收敛检测（基于最近 N 步）
-        if is_converged(all_logs):
-            print("✅ 连续行为相似，已收敛，提前结束")
-            break
-
-        # 10. 阶段推进（每 5 轮）
-        if rnd % 5 == 0 and stage_idx < len(STAGES) - 1:
-            stage_idx += 1
-            print(f"🔔 进入新阶段：{STAGES[stage_idx]}")
-
-    print("🎉 模拟结束，最终总结：", summary)
+    overall_stats['avg_destruction'] /= num_outer_loops
+    print("\n--- 模拟完成 ---")
+    print(f"统计: Stall={overall_stats['successful_stalls']}/{num_outer_loops}, 平均火焰={overall_stats['total_flames']/num_outer_loops:.1f}, 平均毁灭={overall_stats['avg_destruction']:.2f}")
+    print("Irontomb 方程: 收敛到毁灭。" if overall_stats['successful_stalls'] < num_outer_loops / 2 else "Stall！需要外部变量（开拓者）打破循环。")
 
 if __name__ == "__main__":
-    main()
+    run_amphoreus_simulation(50)
